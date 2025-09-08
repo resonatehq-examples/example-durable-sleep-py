@@ -1,8 +1,6 @@
-![Resonate example app Readme banner](/assets/resonate-example-app-readme-banner.png)
+![durable sleep banner](/assets/durable-sleep-readme-banner.png)
 
 # Durable sleep
-
-![durable sleep banner](/assets/durable-sleep-readme-banner.png)
 
 **Resonate Python SDK**
 
