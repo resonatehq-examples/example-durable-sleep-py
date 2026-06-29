@@ -1,16 +1,26 @@
-from resonate import Resonate
+from __future__ import annotations
 
-resonate = Resonate.remote(group="client")
+import asyncio
+import os
 
-def main():
+from resonate.resonate import Resonate
+
+
+async def main() -> None:
+    r = Resonate(url=os.environ.get("RESONATE_URL", "http://localhost:8001"))
     try:
-        id = "sleep-workflow-1"
-        func = "sleeping_workflow"
+        promise_id = "sleep-workflow-1"
         secs = 5.0
-        handle = resonate.options(target="poll://any@worker").begin_rpc(id, func=func, wf_id=id, secs=secs)
-        result = handle.result()
+        handle = r.options(target="worker").rpc(
+            promise_id, "sleeping_workflow", wf_id=promise_id, secs=secs
+        )
+        result = await handle.result()
         print(result)
     except Exception as e:
         print(e)
+    finally:
+        await r.stop()
 
-main()
+
+if __name__ == "__main__":
+    asyncio.run(main())
