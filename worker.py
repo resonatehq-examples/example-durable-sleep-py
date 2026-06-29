@@ -1,16 +1,30 @@
-from resonate import Resonate, Context
-from threading import Event
+from __future__ import annotations
 
-resonate = Resonate.remote(group="worker")
+import asyncio
+import os
+from typing import TYPE_CHECKING
 
-@resonate.register
-def sleeping_workflow(ctx: Context, wf_id: str, secs: float):
+from resonate.resonate import Resonate
+
+if TYPE_CHECKING:
+    from resonate.context import Context
+
+
+async def sleeping_workflow(ctx: Context, wf_id: str, secs: float) -> str:
     print(f"Workflow {wf_id} starting, will sleep for {secs} seconds.")
-    yield ctx.sleep(secs)
+    await ctx.sleep(secs)
     return f"Workflow {wf_id} completed after sleeping for {secs} seconds."
 
-resonate.start()
 
-print("worker is running...")
+async def main() -> None:
+    r = Resonate(
+        url=os.environ.get("RESONATE_URL", "http://localhost:8001"),
+        group="worker",
+    )
+    r.register(sleeping_workflow)
+    print("worker is running...", flush=True)
+    await asyncio.Event().wait()
 
-Event().wait()
+
+if __name__ == "__main__":
+    asyncio.run(main())
